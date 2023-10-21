@@ -1,16 +1,26 @@
 package main
 
 import (
-  "github.com/gin-gonic/gin"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/minguu42/myapp"
 )
 
 func main() {
-  router := gin.Default()
-  router.LoadHTMLGlob("templates/*.html")
+	db := myapp.OpenDB(os.Getenv("DRIVER"), os.Getenv("DSN"))
+	defer myapp.CloseDB(db)
 
-  router.GET("/", func(ctx *gin.Context){
-    ctx.HTML(200, "index.html", gin.H{})
-  })
+	if err := db.Ping(); err != nil {
+		log.Fatal("db.Ping failed:", err)
+	}
 
-  router.Run()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = fmt.Fprint(w, "Hello, 世界！")
+	})
+
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), nil))
 }

@@ -1,6 +1,8 @@
-FROM golang:1.16-alpine
+FROM golang:alpine
 
-RUN mkdir /app
-WORKDIR /app
-RUN go mod init test/module
-RUN go get github.com/gin-gonic/gin
+WORKDIR /go/src/app
+COPY . .
+
+RUN go get -d -v ./...
+
+CMD ["go", "run", "."]
